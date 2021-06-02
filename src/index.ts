@@ -38,6 +38,8 @@ const MONTHS = [
   'December',
 ];
 
+const recentSessions: String[] = [];
+
 export const fetch = async () => {
   const districts = districtIds.filter(
     districtInfo =>
@@ -63,7 +65,7 @@ export const fetch = async () => {
     calennderByDistrict.centers.map(center => {
       center.sessions.map(session => {
         if (
-          (AGE ? session.min_age_limit <= AGE : true) &&
+          (AGE ? session.min_age_limit === AGE : true) &&
           session.available_capacity > 0 &&
           (VACCINE ? session.vaccine.toUpperCase() === VACCINE : true)
         ) {
@@ -83,13 +85,15 @@ export const fetch = async () => {
             msg = `Found ${session.vaccine} at ${center.name}, ${center.district_name} on ${date} for ${session.min_age_limit}+. \nAvailable Dose 1: ${session.available_capacity_dose1} \nAvailable Dose 2: ${session.available_capacity_dose2}`;
           }
 
-          if (msg) {
+          if (msg && !recentSessions.includes(session.session_id)) {
             telegram
               .post('sendMessage', {
                 chat_id: CHAT_ID,
                 text: msg,
               })
               .catch(err => console.error('Telegram Error', err));
+
+            recentSessions.push(session.session_id);
           }
         }
       });
@@ -98,3 +102,8 @@ export const fetch = async () => {
 };
 
 setInterval(fetch, 8000);
+
+// Clear recentSession after 10mins
+setInterval(() => {
+  recentSessions.splice(0, recentSessions.length);
+}, 600000);
