@@ -74,13 +74,14 @@ export const fetch = async () => {
           const dateArray = session.date.split('-');
           const date = `${MONTHS[parseInt(dateArray[1])]} ${dateArray[0]}`;
 
-          if (DOSE === 1 && session.available_capacity_dose1 > 0) {
+          if (DOSE === 1 && session.available_capacity_dose1 > 5) {
             msg = `Found ${session.vaccine} at ${center.name}, ${center.district_name} on ${date} for ${session.min_age_limit}+. \nAvailable Dose 1: ${session.available_capacity_dose1}`;
-          } else if (DOSE === 2 && session.available_capacity_dose2 > 0) {
+          } else if (DOSE === 2 && session.available_capacity_dose2 > 5) {
             msg = `Found ${session.vaccine} at ${center.name}, ${center.district_name} on ${date} for ${session.min_age_limit}+. \nAvailable Dose 2: ${session.available_capacity_dose2}`;
           } else if (
-            session.available_capacity_dose1 > 0 ||
-            session.available_capacity_dose2 > 0
+            !DOSE &&
+            (session.available_capacity_dose1 > 5 ||
+              session.available_capacity_dose2 > 5)
           ) {
             msg = `Found ${session.vaccine} at ${center.name}, ${center.district_name} on ${date} for ${session.min_age_limit}+. \nAvailable Dose 1: ${session.available_capacity_dose1} \nAvailable Dose 2: ${session.available_capacity_dose2}`;
           }
@@ -106,4 +107,4 @@ setInterval(fetch, 8000);
 // Clear recentSession after 10mins
 setInterval(() => {
   recentSessions.splice(0, recentSessions.length);
-}, 600000);
+}, 200000);
